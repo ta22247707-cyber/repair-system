@@ -1,0 +1,30 @@
+# 本機環境設定與金鑰；範本可納入版本控制
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# JavaScript 相依套件與建置產物
+node_modules/
+dist/
+build/
+coverage/
+.vite/
+.next/
+
+# 執行紀錄
+*.log
+
+# Supabase 本機暫存
+supabase/.temp/
+supabase/.branches/
+
+# 作業系統與編輯器暫存
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.swp
+*.swo
+
+# Office 暫存鎖定檔（正式交付文件仍納入版本控制）
+~$*
