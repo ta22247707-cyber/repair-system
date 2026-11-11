@@ -7,9 +7,13 @@
   const formMessage = document.querySelector('#form-message');
   const listMessage = document.querySelector('#list-message');
   const list = document.querySelector('#repair-list');
+  const filterButtons = [...document.querySelectorAll('#urgency-filters button')];
+  const filterMessage = document.querySelector('#filter-message');
   const columns = 'id,created_at,reporter_name,location,category,description,urgency,status';
   let client;
   let submitting = false;
+  let cachedRequests = [];
+  let selectedUrgency = '全部';
 
   function message(element, text, kind = '') {
     element.textContent = text;
@@ -44,6 +48,26 @@
     list.replaceChildren(fragment);
   }
 
+  // 篩選只使用記憶體內已載入的資料，不重新查詢資料庫。
+  function renderFiltered() {
+    const rows = selectedUrgency === '全部' ? cachedRequests
+      : cachedRequests.filter((row) => row.urgency === selectedUrgency);
+    render(rows);
+    for (const button of filterButtons) {
+      button.setAttribute('aria-pressed', String(button.dataset.urgency === selectedUrgency));
+    }
+    message(filterMessage, cachedRequests.length
+      ? rows.length ? `顯示 ${rows.length} 筆（${selectedUrgency}）` : `最近 20 筆中沒有緊急程度為「${selectedUrgency}」的報修。`
+      : '');
+  }
+
+  for (const button of filterButtons) {
+    button.addEventListener('click', () => {
+      selectedUrgency = button.dataset.urgency;
+      renderFiltered();
+    });
+  }
+
   async function loadRequests() {
     refreshButton.disabled = true;
     list.setAttribute('aria-busy', 'true');
@@ -52,10 +76,11 @@
       const { data, error } = await client.from('repair_requests').select(columns)
         .order('created_at', { ascending: false }).order('id', { ascending: false }).limit(20);
       if (error) throw error;
-      render(data || []);
+      cachedRequests = data || [];
+      renderFiltered();
       message(listMessage, data?.length ? '' : '目前還沒有報修紀錄。');
     } catch (error) {
-      message(listMessage, `清單載入失敗，請按「重新整理」重試。${list.childElementCount ? '下方保留上次載入的清單。' : ''} ${error.message || '請檢查網路連線。'}`, 'error');
+      message(listMessage, `清單載入失敗，請按「重新整理」重試。${cachedRequests.length ? '下方保留上次載入的清單。' : ''} ${error.message || '請檢查網路連線。'}`, 'error');
     } finally {
       refreshButton.disabled = false;
       list.setAttribute('aria-busy', 'false');

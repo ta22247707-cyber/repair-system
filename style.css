@@ -31,7 +31,11 @@ button:disabled { opacity: .55; cursor: wait; }
 .request { padding: 20px 0; border-top: 1px solid #e2e9e3; overflow-wrap: anywhere; }
 .request-top { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 .badge { font-size: .8rem; padding: 2px 9px; border-radius: 20px; background: #eaf1ec; font-weight: 600; }
-.badge.urgent { color: #96392e; background: #fcebe7; }
+.badge.urgent { color: #b42318; background: #fee4e2; }
+.filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+.filters button { min-width: 56px; color: #155c50; background: #fff; border-color: #afbeb4; }
+.filters button[aria-pressed="true"] { color: #fff; background: #155c50; border-color: #155c50; box-shadow: inset 0 0 0 2px #fff; }
+.filters button:hover { border-color: #155c50; }
 .description { white-space: pre-wrap; margin: 12px 0; }
 .metadata { color: #5b6c65; font-size: .85rem; }
 footer { padding: 8px 0 30px; color: #5b6c65; font-size: .85rem; }
