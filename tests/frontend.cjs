@@ -34,6 +34,14 @@ const assert = require('node:assert/strict');
     assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
     const initialReads = reads;
     assert.equal(await page.locator('[data-urgency=全部]').getAttribute('aria-pressed'), 'true');
+    // 窄版手機仍保持四個篩選同排，且各按鈕可觸控。
+    for (const width of [320, 390]) {
+      await page.setViewportSize({ width, height: 844 });
+      const boxes = await page.locator('#urgency-filters button').evaluateAll(buttons =>
+        buttons.map(button => { const rect = button.getBoundingClientRect(); return { top: rect.top, width: rect.width, height: rect.height }; }));
+      assert(boxes.every(box => box.top === boxes[0].top && box.width >= 44 && box.height >= 44));
+      assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+    }
     for (const urgency of ['高', '中', '低', '全部']) {
       await page.locator(`[data-urgency=${urgency}]`).click();
       assert.equal(await page.locator('#urgency-filters [aria-pressed=true]').count(), 1);
