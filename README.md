@@ -26,3 +26,5 @@ GitHub Pages：在儲存庫 Settings → Pages 選擇 Deploy from a branch，分
 4. 點回「全部」恢復已載入的最近 20 筆；選取一個緊急程度再點清單的「重新整理」，確認選取狀態保留。切換篩選本身不重新查詢資料庫。
 
 語法檢查：`node --check app.js` 與 `node --check config.js`。瀏覽器測試需 Node.js、Playwright、Chromium 及上述本機伺服器，執行 `node tests/frontend.cjs`；可用 `CHROMIUM_PATH` 指定瀏覽器、`BASE_URL` 指定預覽網址、`SDK_PATH` 指定已下載的同版本 CDN 程式。本測試模擬 API，不會寫入真實資料庫。
+
+[報修系統操作說明（Word）](文件/報修系統操作說明.docx)
