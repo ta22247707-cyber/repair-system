@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#155c50">
+  <title>報修登記</title>
+  <link rel="stylesheet" href="./style.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.95.3/dist/umd/supabase.js"></script>
+  <script defer src="./config.js"></script>
+  <script defer src="./app.js"></script>
+</head>
+<body>
+  <header class="hero"><div class="wrap"><p class="eyebrow">一起維護更好的工作環境</p><h1>報修登記</h1><p>把問題記下來，讓處理有跡可循。</p></div></header>
+  <main class="wrap">
+    <section class="panel" aria-labelledby="form-title">
+      <div class="section-heading"><div><p class="eyebrow">新增需求</p><h2 id="form-title">哪裡需要幫忙？</h2></div><span class="note">所有欄位皆必填</span></div>
+      <p class="notice">這是公開示範，所有登記內容都會公開顯示，請使用虛構姓名與地點，勿填個資、密碼或金鑰。</p>
+      <form id="repair-form">
+        <div class="grid">
+          <label>報修人<input name="reporter_name" required maxlength="80" autocomplete="off" placeholder="例如：虛構同事甲"></label>
+          <label>地點或部門<input name="location" required maxlength="160" autocomplete="off" placeholder="例如：虛構星河辦公室"></label>
+          <label>類別<select name="category" required><option value="">請選擇類別</option><option>設備</option><option>網路</option><option>環境</option><option>其他</option></select></label>
+          <label>緊急程度<select name="urgency" required><option>低</option><option selected>中</option><option>高</option></select></label>
+        </div>
+        <label>問題說明<textarea name="description" required maxlength="2000" rows="4" placeholder="請描述問題現象與影響。"></textarea></label>
+        <div class="actions"><p class="note">登記時間與初始處理狀態由系統產生。</p><button id="submit-button" type="submit" disabled>送出報修</button></div>
+      </form>
+      <p id="form-message" class="message" role="status" aria-live="polite"></p>
+    </section>
+    <section class="panel" aria-labelledby="list-title">
+      <div class="section-heading"><div><p class="eyebrow">問題追蹤</p><h2 id="list-title">最近報修</h2><p class="note">最近 20 筆，最新登記在上方 · 時間以臺北時間顯示</p></div><button id="refresh-button" class="secondary" type="button" disabled>重新整理</button></div>
+      <p id="list-message" class="message" role="status" aria-live="polite">正在載入清單…</p>
+      <div id="repair-list" aria-busy="true"></div>
+    </section>
+  </main>
+  <footer class="wrap">報修登記 · 公開示範</footer>
+</body>
+</html>
