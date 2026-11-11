@@ -90,6 +90,10 @@
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
     if (submitting || !client || !form.reportValidity()) return;
+    if (!navigator.onLine) {
+      message(formMessage, '目前離線，尚未送出報修。請恢復連線後再送出；表單已保留。', 'error');
+      return;
+    }
     const values = new FormData(form);
     // 僅送出資料庫允許新增的五個欄位，不送 status、id 或 created_at。
     const payload = Object.fromEntries(['reporter_name', 'location', 'category', 'description', 'urgency']

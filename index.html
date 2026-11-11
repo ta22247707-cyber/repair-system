@@ -4,15 +4,26 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#155c50">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" type="image/png" href="./public/icons/icon-192.png">
+  <link rel="apple-touch-icon" href="./public/icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="報修登記">
   <title>報修登記</title>
   <link rel="stylesheet" href="./style.css">
   <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.95.3/dist/umd/supabase.js"></script>
   <script defer src="./config.js"></script>
   <script defer src="./app.js"></script>
+  <script defer src="./src/pwa.js"></script>
 </head>
 <body>
   <header class="hero"><div class="wrap"><p class="eyebrow">一起維護更好的工作環境</p><h1>報修登記</h1><p>把問題記下來，讓處理有跡可循。</p></div></header>
   <main class="wrap">
+    <aside class="panel" aria-label="應用程式安裝與連線狀態">
+      <button id="install-button" class="secondary" type="button" hidden>安裝報修登記</button>
+      <p class="note">可加入手機主畫面或安裝至電腦。iPhone／iPad：使用 Safari 分享選單，選擇「加入主畫面」。</p>
+      <p id="connection-status" class="message" role="status" aria-live="polite" hidden></p>
+    </aside>
     <section class="panel" aria-labelledby="form-title">
       <div class="section-heading"><div><p class="eyebrow">新增需求</p><h2 id="form-title">哪裡需要幫忙？</h2></div><span class="note">所有欄位皆必填</span></div>
       <p class="notice">這是公開示範，所有登記內容都會公開顯示，請使用虛構姓名與地點，勿填個資、密碼或金鑰。</p>

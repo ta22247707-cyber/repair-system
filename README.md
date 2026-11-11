@@ -27,5 +27,17 @@ GitHub Pages：在儲存庫 Settings → Pages 選擇 Deploy from a branch，分
 
 語法檢查：`node --check app.js` 與 `node --check config.js`。瀏覽器測試需 Node.js、Playwright、Chromium 及上述本機伺服器，執行 `node tests/frontend.cjs`；可用 `CHROMIUM_PATH` 指定瀏覽器、`BASE_URL` 指定預覽網址、`SDK_PATH` 指定已下載的同版本 CDN 程式。本測試模擬 API，不會寫入真實資料庫。
 
+## PWA 安裝與離線使用
+
+本網站附有 Web App Manifest、192／512 像素圖示、maskable 圖示、Apple 主畫面圖示與 Service Worker，不需要建置。GitHub Pages 的 HTTPS 與 `/repair-system/` 子路徑均可使用。
+
+- Android／電腦：用 Chrome 或 Edge 開啟網站，符合安裝條件時點選「安裝報修登記」，或使用瀏覽器的安裝選單。
+- iPhone／iPad：使用 Safari 開啟網站，從分享選單選擇「加入主畫面」。
+- 第一次須連線開啟並完成離線資源下載；之後可離線開啟畫面。報修清單與送出功能仍需網路，離線不會新增或自動重送資料。未送出的表單只保留在目前頁面，重新載入或關閉會遺失。
+- 僅快取靜態畫面資源，不快取 Supabase API、報修內容或 POST。外部 Supabase CDN 離線時可能無法載入，頁面會顯示連線錯誤；恢復連線後重新整理即可使用。
+- 更新靜態資源時同步遞增 `sw.js` 的快取版本。新版會等待舊頁面關閉再接手；更新後請關閉所有此網站分頁與已安裝視窗，再重新開啟。
+
+PWA 驗證：在 `/workspace` 執行 `python -m http.server 8765 --bind 127.0.0.1`，再於專案目錄執行 `BASE_URL=http://127.0.0.1:8765/repair-system/ node tests/pwa.cjs`。此測試檢查子路徑、Chromium 安裝條件、圖示尺寸、離線重載與快取範圍。原有 `node tests/frontend.cjs` 仍用於驗證表單與清單。
+
 [報修系統操作說明（Word）](文件/報修系統操作說明.docx)
 [報修登記系統提案（PowerPoint，6 頁）](文件/報修登記系統提案.pptx)
