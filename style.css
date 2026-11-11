@@ -32,8 +32,8 @@ button:disabled { opacity: .55; cursor: wait; }
 .request-top { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 .badge { font-size: .8rem; padding: 2px 9px; border-radius: 20px; background: #eaf1ec; font-weight: 600; }
 .badge.urgent { color: #b42318; background: #fee4e2; }
-.filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
-.filters button { min-width: 56px; color: #155c50; background: #fff; border-color: #afbeb4; }
+.filters { display: flex; gap: 8px; margin-bottom: 8px; }
+.filters button { flex: 1; min-width: 0; padding-inline: 8px; color: #155c50; background: #fff; border-color: #afbeb4; }
 .filters button[aria-pressed="true"] { color: #fff; background: #155c50; border-color: #155c50; box-shadow: inset 0 0 0 2px #fff; }
 .filters button:hover { border-color: #155c50; }
 .description { white-space: pre-wrap; margin: 12px 0; }
