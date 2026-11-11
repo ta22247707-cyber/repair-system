@@ -2,9 +2,9 @@
 const { chromium } = require('playwright');
 const assert = require('node:assert/strict');
 (async () => {
-  const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || '/usr/bin/chromium', headless: true });
+  const profile = require('node:fs').mkdtempSync('/tmp/repair-pwa-test-');
+  const context = await chromium.launchPersistentContext(profile, { executablePath: process.env.CHROMIUM_PATH || '/usr/bin/chromium', headless: true });
   try {
-    const context = await browser.newContext();
     // 保持 API 與 CDN 無法使用，確認離線外殼不依賴外部服務。
     await context.route('https://**', route => route.abort());
     const page = await context.newPage();
@@ -29,6 +29,8 @@ const assert = require('node:assert/strict');
       }
     });
     await context.setOffline(true);
+    await cdp.send('Network.enable');
+    await cdp.send('Network.emulateNetworkConditions', { offline: true, latency: 0, downloadThroughput: 0, uploadThroughput: 0 });
     await page.reload();
     await page.waitForFunction(() => !document.querySelector('#connection-status').hidden);
     assert.equal(await page.locator('h1').textContent(), '報修登記');
@@ -42,5 +44,8 @@ const assert = require('node:assert/strict');
     assert(!cached.some(url => url.includes('supabase')));
     await page.screenshot({ path: '/tmp/repair-pwa-offline.png', fullPage: true });
     console.log('通過：GitHub Pages 子路徑、瀏覽器可安裝性、圖示尺寸、Service Worker 啟用、離線重載、連線提示與靜態快取範圍。');
-  } finally { await browser.close(); }
+  } finally {
+    await context.close();
+    require('node:fs').rmSync(profile, { recursive: true, force: true });
+  }
 })().catch(error => { console.error(error); process.exitCode = 1; });
