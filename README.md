@@ -14,4 +14,6 @@ GitHub Pages：在儲存庫 Settings → Pages 選擇 Deploy from a branch，分
 
 ## 前端驗證
 
+最近報修上方提供「全部／高／中／低」緊急程度篩選，預設全部；選取的按鈕以深色背景與按下狀態標示。篩選僅針對網頁已讀取的最近 20 筆，不會新增資料庫請求，沒有符合項目時顯示提示；重新整理或新增成功後保留篩選選項。緊急程度為「高」的標籤使用紅字與淡紅背景。本次未變更資料庫、欄位、SQL 或 `supabase/` 資料夾。
+
 語法檢查：`node --check app.js` 與 `node --check config.js`。瀏覽器測試需 Node.js、Playwright、Chromium 及上述本機伺服器，執行 `node tests/frontend.cjs`；可用 `CHROMIUM_PATH` 指定瀏覽器、`BASE_URL` 指定預覽網址、`SDK_PATH` 指定已下載的同版本 CDN 程式。本測試模擬 API，不會寫入真實資料庫。

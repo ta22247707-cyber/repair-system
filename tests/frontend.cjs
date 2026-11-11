@@ -8,7 +8,8 @@ const assert = require('node:assert/strict');
     const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
     const errors = [];
     page.on('pageerror', (e) => errors.push(e.message));
-    const rows = Array.from({ length: 20 }, (_, i) => ({ id: String(i), created_at: new Date(Date.UTC(2026, 10, 11, 12, 0, -i)).toISOString(), reporter_name: '虛構同事甲', location: '虛構辦公室', category: '設備', description: i === 0 ? '<img src=x onerror="window.injected=1">' : `測試報修${i}`, urgency: '中', status: '待處理' }));
+    const rows = Array.from({ length: 20 }, (_, i) => ({ id: String(i), created_at: new Date(Date.UTC(2026, 10, 11, 12, 0, -i)).toISOString(), reporter_name: '虛構同事甲', location: '虛構辦公室', category: '設備', description: i === 0 ? '<img src=x onerror="window.injected=1">' : `測試報修${i}`, urgency: ['高', '中', '低'][i % 3], status: '待處理' }));
+    let reads = 0;
     let failInsert = false, failRead = false, empty = false, payload;
     if (process.env.SDK_PATH) await page.route('**/supabase-js@*/dist/umd/supabase.js', r => r.fulfill({ path: process.env.SDK_PATH, contentType: 'application/javascript' }));
     await page.route('https://*.supabase.co/**', async (route) => {
@@ -19,6 +20,7 @@ const assert = require('node:assert/strict');
         payload = req.postDataJSON();
         return route.fulfill({ status: failInsert ? 403 : 201, headers, contentType: 'application/json', body: failInsert ? JSON.stringify({ message: '新增遭拒絕' }) : '' });
       }
+      reads += 1;
       const url = new URL(req.url());
       assert.equal(url.searchParams.get('limit'), '20');
       assert.equal(url.searchParams.get('order'), 'created_at.desc,id.desc');
@@ -30,6 +32,29 @@ const assert = require('node:assert/strict');
     assert.equal(await page.locator('.description img').count(), 0);
     assert.equal(await page.evaluate(() => window.injected), undefined);
     assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+    const initialReads = reads;
+    assert.equal(await page.locator('[data-urgency=全部]').getAttribute('aria-pressed'), 'true');
+    for (const urgency of ['高', '中', '低', '全部']) {
+      await page.locator(`[data-urgency=${urgency}]`).click();
+      assert.equal(await page.locator('#urgency-filters [aria-pressed=true]').count(), 1);
+      assert.equal(await page.locator(`[data-urgency=${urgency}]`).getAttribute('aria-pressed'), 'true');
+      assert.equal(await page.locator('.request').count(), urgency === '全部' ? 20 : rows.filter(r => r.urgency === urgency).length);
+      if (urgency !== '全部') {
+        for (const text of await page.locator('.request-top .badge:nth-child(2)').allTextContents()) assert.equal(text, `緊急程度：${urgency}`);
+      }
+    }
+    assert.equal(reads, initialReads, '切換篩選不可查詢資料庫');
+    assert.equal(await page.locator('.badge.urgent').first().evaluate(el => getComputedStyle(el).color), 'rgb(180, 35, 24)');
+    await page.locator('[data-urgency=高]').click();
+    rows.forEach(row => { row.urgency = '中'; });
+    await page.locator('#refresh-button').click();
+    await page.waitForFunction(() => document.querySelector('#filter-message').textContent.includes('沒有緊急程度'));
+    assert.equal(await page.locator('.request').count(), 0);
+    assert.equal(await page.locator('[data-urgency=高]').getAttribute('aria-pressed'), 'true');
+    rows.forEach((row, i) => { row.urgency = ['高', '中', '低'][i % 3]; });
+    await page.locator('[data-urgency=全部]').click();
+    await page.locator('#refresh-button').click();
+    await page.waitForFunction(() => document.querySelectorAll('.request').length === 20);
     await page.locator('[name=reporter_name]').fill('虛構同事乙');
     await page.locator('[name=location]').fill('虛構雲朵門市');
     await page.locator('[name=category]').selectOption('網路');
@@ -70,6 +95,6 @@ const assert = require('node:assert/strict');
     await offline.goto(process.env.BASE_URL || 'http://127.0.0.1:8000');
     await offline.waitForFunction(() => document.querySelector('#form-message').dataset.kind === 'error');
     assert(await offline.locator('#submit-button').isDisabled());
-    console.log('通過：實際 SDK、五欄新增、成功重設、錯誤保留、最近20筆排序、空清單、讀取錯誤、XSS、手機與桌面版面、CDN失敗。');
+    console.log('通過：篩選無額外請求、選取狀態、無符合資料、重新整理保留選項、紅色高緊急標籤、實際 SDK、五欄新增、成功重設、錯誤保留、最近20筆排序、空清單、讀取錯誤、XSS、手機與桌面版面、CDN失敗。');
   } finally { await browser.close(); }
 })().catch(e => { console.error(e); process.exitCode = 1; });
